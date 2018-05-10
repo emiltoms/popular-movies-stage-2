@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/swipe_refresh"
+    style="@style/mainActivityLayout"
+    tools:context="com.example.mit.popularmovies.MainActivity">
+
+    <GridView
+        android:id="@+id/movies_grid"
+        style="@style/gridView" />
+
+</android.support.v4.widget.SwipeRefreshLayout>

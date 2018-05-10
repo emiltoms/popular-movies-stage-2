@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">Popular Movies</string>
+    <string name="movie_detail_activity_label">Movie info</string>
+    <string name="msg_no_data_to_load">No data to load</string>
+    <string name="msg_refreshed">Refreshed</string>
+    <string name="msg_no_internet_connection">No internet connection</string>
+    <string name="msg_null_pointer_exception">Error. Please Refresh The App.</string>
+    <string name="msg_storage_info_snackbar">Favorite movies can be viewed even in offline mode.</string>
+    <string name="msg_storage_info_snackbar_offline">In offline mode, You can load only Your favorite movies.</string>
+    <string name="msg_movie_added_to_favorite">Added to Favorite</string>
+    <string name="msg_movie_removed_from_favorite">Movie no longer in Favorite</string>
+    <string name="adapter_error_currentMovie_is_null">Adapter error: assert currentMovie != null</string>
+
+    <string name="sorted_by_popular" translatable="false">popular</string>
+    <string name="sorted_by_top_rated" translatable="false">top_rated</string>
+    <string name="sorted_by_favorites" translatable="false">favorites</string>
+    <string name="instance_key_string" translatable="false">movies</string>
+    <string name="movie_thumbnail">Movie thumbnail</string>
+    <string name="release_date">Release date</string>
+    <string name="imdb_rating">IMDB Rating</string>
+    <string name="intent_extra_name">selected</string>
+    <string name="top_rated">Top Rated</string>
+    <string name="most_popular">Most popular</string>
+    <string name="item_three">Favorites</string>
+    <string name="item_favorite">Favorite</string>
+    <string name="back_to_top_description">Back to top</string>
+</resources>
