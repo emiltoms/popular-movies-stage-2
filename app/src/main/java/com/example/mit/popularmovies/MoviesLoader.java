@@ -11,8 +11,8 @@ import java.util.List;
 
 class MoviesLoader extends AsyncTaskLoader<List<Movie>> {
 
-    private String sortedBy;
     private static final String BY_FAVORITES = "favorites";
+    private String sortedBy;
     @SuppressLint("StaticFieldLeak")
     private Context context;
 
@@ -29,7 +29,6 @@ class MoviesLoader extends AsyncTaskLoader<List<Movie>> {
 
     @Override
     public List<Movie> loadInBackground() {
-//          return Utils.takeMovies(sortedBy);
         if (sortedBy.equals(BY_FAVORITES)) {
             List<Movie> movies = new ArrayList<>();
             FavMoviesDbAdapter favMoviesDbAdapter = new FavMoviesDbAdapter(context);
@@ -48,7 +47,7 @@ class MoviesLoader extends AsyncTaskLoader<List<Movie>> {
             return movies;
         } else {
             List<Movie> list = Utils.takeMovies(sortedBy);
-            Log.i(MoviesLoader.class.getSimpleName(), " List<Movie> list = Utils.takeMovies(sortedBy) = "+list);
+            Log.i(MoviesLoader.class.getSimpleName(), " List<Movie> list = Utils.takeMovies(sortedBy) = " + list);
             return list;
         }
     }

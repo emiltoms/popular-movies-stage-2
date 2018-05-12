@@ -32,7 +32,7 @@ public class FavMoviesDbAdapter {
     private static final String DATABASE_NAME = "FAVORITE_MOVIES.db";
     private static final String FAV_MOVIES_TABLE = "FAV_MOVIES_TABLE";
     private static final String NO_DATA = "n/a";
-    private static final int DATABASE_VERSION = 925;
+    private static final int DATABASE_VERSION = 991;
     private static final String CREATE_TABLE_FAVORITE_MOVIES =
             "create table " + FAV_MOVIES_TABLE + "("
                     + KEY_ROWID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -77,12 +77,6 @@ public class FavMoviesDbAdapter {
         if (databaseHelper != null) {
             databaseHelper.close();
         }
-    }
-
-    public void upgrade() throws SQLException {
-        databaseHelper = new DatabaseHelper(context); // open
-        sqLiteDatabase = databaseHelper.getWritableDatabase();
-        databaseHelper.onUpgrade(sqLiteDatabase, 1, 0);
     }
 
     /**

@@ -23,19 +23,18 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-import android.support.v7.widget.ShareActionProvider;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -55,15 +54,11 @@ public class MovieDetailActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = MovieDetailActivity.class.getSimpleName();
     private static final Long ALREADY_IN_FAVORITES = (long) -3;
-    private static final int BUTTON_DEACTIVATE = 0;
-    private static final int BUTTON_ACTVIE = 1;
     private static final Long REMOVED_FROM_FAVORITES = (long) -4;
     private static final Long ERROR_FROM_DATABASE_OPERATION = (long) -5;
     private static final Long NOT_IN_FAVORITES = (long) -6;
     @BindView(R.id.thumbnail_image)
     ImageView thumbnailIV;
-//    @BindView(R.id.title_tv)
-//    TextView titleTV;
     @BindView(R.id.release_date_tv)
     TextView releaseDateTV;
     @BindView(R.id.movie_overview_tv)
@@ -79,32 +74,22 @@ public class MovieDetailActivity extends AppCompatActivity {
     @BindView(R.id.overview_read_more_tv)
     TextView readMoreTextView;
     @BindView(R.id.offline_recyclerView_alternative_textView)
-            TextView recyclerViewOfflineTextView;
-//
+    TextView recyclerViewOfflineTextView;
+
     ArrayList<String> trailersData;
-//    TrailersAdapter trailersAdapter;
-
-    //    Button favButton;
-
     FloatingActionButton favButton;
     FloatingActionButton favButtonBottom;
-
-    private boolean isInFavorites;
+    NestedScrollView nestedScrollView;
+    ShareActionProvider shareActionProvider;
     private Context context;
     private Movie selectedMovie;
     private boolean btnClicked;
     private Snackbar addSnackbar;
     private Snackbar removeSnackbar;
     private boolean isInternetConnection;
-
-    NestedScrollView nestedScrollView;
-
-
     private RecyclerView recyclerView;
     private TrailersAdapter recyclerAdapter;
     private RecyclerView.LayoutManager recyclerLayoutManager;
-
-    ShareActionProvider shareActionProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,7 +131,6 @@ public class MovieDetailActivity extends AppCompatActivity {
             Picasso.with(context).load(selectedMovie.getThumbnail()).into(thumbnailIV);
             Picasso.with(context).load(selectedMovie.getThumbnail()).into(collapsingImageView);
         }   // else {Image will load in ConnectToDatabase class}
-
 
         releaseDateTV.setText(selectedMovie.getReleaseDate());
         ratingTV.setText(selectedMovie.getRating());
@@ -194,14 +178,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         addSnackbar = Snackbar.make(coordinateLayout, getResources().getString(R.string.msg_movie_added_to_favorite), Snackbar.LENGTH_LONG);
         removeSnackbar = Snackbar.make(coordinateLayout, getResources().getString(R.string.msg_movie_removed_from_favorite), Snackbar.LENGTH_LONG);
 
-//        recyclerLayoutManager = new LinearLayoutManager(this);
-//        trailersListView.setLayoutManager(recyclerLayoutManager);
-//
-//        recyclerAdapter = new TrailersAdapter(trailersList);
-//        trailersListView.setAdapter(recyclerAdapter);
-
-        recyclerView = (RecyclerView) findViewById(R.id.trailer_recyclerView);
-//        recyclerView.setHasFixedSize(false);
+        recyclerView = findViewById(R.id.trailer_recyclerView);
 
         // If internetStatus = true, create list of trailers,
         // else show offline alternative.
@@ -219,6 +196,7 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         trailersData = new ArrayList<>();
     }
+
     /**
      * This method check is device has connection to the internet.
      *
@@ -246,21 +224,26 @@ public class MovieDetailActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case android.R.id.home :
+            case android.R.id.home:
                 finish();
                 return true;
-//            case R.id.menu_item_share :
-//                Toast.makeText(context, "MenuItem SHARE clicked", Toast.LENGTH_SHORT).show();
-//                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
     private void setShareActionProvider() {
+        String subject = "Check out this movie: " + selectedMovie.getTitleMovie();
+        String text = "Check out this movie!\n" +
+                "It's from " + selectedMovie.getReleaseDate() +
+                " and has rating " + selectedMovie.getRating() +
+                " in Themoviedb.org.\n" +
+                "See by yourself: \n" +
+                "https://www.themoviedb.org/movie/" + selectedMovie.getMovieID();
+
         Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.putExtra(Intent.EXTRA_TEXT, selectedMovie.getTitleMovie());
-        intent.putExtra(Intent.EXTRA_TEXT, selectedMovie.getRating());
+        intent.putExtra(Intent.EXTRA_SUBJECT, subject);
+        intent.putExtra(Intent.EXTRA_TEXT, text);
         intent.setType("text/plain");
 
         if (shareActionProvider != null) {
@@ -289,12 +272,6 @@ public class MovieDetailActivity extends AppCompatActivity {
             favButton.setImageResource(R.drawable.ic_favorite_border_black_24dp);
             favButtonBottom.setImageResource(R.drawable.ic_favorite_border_black_24dp);
         }
-    }
-
-    private byte[] getBitmapAsByteArray(Bitmap bitmap) {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-        return outputStream.toByteArray();
     }
 
     public void toTopButtonClicked(View view) {
@@ -326,15 +303,9 @@ public class MovieDetailActivity extends AppCompatActivity {
                 trailersData = loadTrailersData;
                 recyclerAdapter = new TrailersAdapter(trailersData, context);
                 recyclerView.setAdapter(recyclerAdapter);
-
-
             }
 
-            Log.i(LOG_TAG, "onPostExecute; recyclerAdapter = " + recyclerAdapter);
-            Log.i(LOG_TAG, "Aaand trailersData = " + trailersData);
-
             if (result > -1) {
-                newAdnotation("Added to favorite. \n Movie db ID: " + result + "\n" + String.valueOf(this.movie.getMovieID()));
                 setButtonStatus(true);
             } else if (result == -1) {
                 newAdnotation("I CAN'T SAVE THIS MOVIE." + "\n" + result);
@@ -346,7 +317,6 @@ public class MovieDetailActivity extends AppCompatActivity {
             } else if (result.equals(NOT_IN_FAVORITES)) {
                 setButtonStatus(false);
             } else if (result.equals(REMOVED_FROM_FAVORITES)) {
-                newAdnotation("Removed from favorites.");
                 setButtonStatus(false);
             }
             favButton.setEnabled(true);
@@ -357,7 +327,6 @@ public class MovieDetailActivity extends AppCompatActivity {
             this.movie = movie[0];
 
             loadTrailersData = Utils.takeTrailers(this.movie.getMovieID());
-//            trailersAdapter = new TrailersAdapter(MovieDetailActivity.this, trailersList);
 
             Cursor movieCursor = favMoviesDbAdapter.getMovie(this.movie.getMovieID());
             if (movieCursor.getCount() > 0) {
@@ -416,8 +385,6 @@ public class MovieDetailActivity extends AppCompatActivity {
             Bitmap bitmap = streamImageToBitmap(imageURL);
             String imageName = String.valueOf(movieID);
 
-
-            // try nr 3. https://stackoverflow.com/questions/17674634/saving-and-reading-bitmaps-images-from-internal-memory-in-android
             ContextWrapper contextWrapper = new ContextWrapper(getApplicationContext());
             File directory = contextWrapper.getDir("imageDir", Context.MODE_PRIVATE);
             File newPath = new File(directory, imageName);
@@ -437,83 +404,7 @@ public class MovieDetailActivity extends AppCompatActivity {
             }
 
             return directory.getAbsolutePath();
-
-
-//            FileOutputStream outputStream = null;
-//            File file = new File(context.getExternalFilesDir(
-//                    Environment.DIRECTORY_PICTURES), "thumbnails");
-//            if (file.mkdirs()) {
-//                Log.i(LOG_TAG, "newLocalImagePath, new File, file.mkdirs == true");
-//            }
-//            String extStorageDirectory = file.toString();
-//            File f = new File(extStorageDirectory, imageName);
-//            String localImagePath = f.getAbsolutePath() + ".jpg";
-//
-//            try {
-//                outputStream = new FileOutputStream(f);
-//                assert bitmap != null;
-//                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream);
-//                newAdnotation("Image saved at "+file.getAbsolutePath());
-//            } catch (FileNotFoundException e) {
-//                Log.e(LOG_TAG, "newLocalImagePath, FileNotFoundException, e = "+e);
-//                return "n/a";
-//            }
-//            try {
-//                outputStream.flush();
-//                outputStream.close();
-//                return localImagePath;
-//            } catch (IOException e) {
-//                Log.e(LOG_TAG, "newLocalImagePath, IOException, e :" +e);
-//                return "n/a";
-//            }
-
-
-//            FileOutputStream outputStream = null;
-//            try {
-//                outputStream = openFileOutput(imageName, Context.MODE_PRIVATE);
-//                outputStream.write(bitmap.getByteCount());
-//                outputStream.close();
-//            } catch (Exception e) {
-//                Log.e(LOG_TAG, "saveImage : exception e = "+e);
-//            }
-
-//            File imageFile = getOutputMediaFile();
-//            if (imageFile == null) {
-//                Log.e(LOG_TAG, "Media Storage Permission.");
-//                return null;
-//            }
-//            try {
-//                FileOutputStream fileOutputStream = new FileOutputStream(imageFile);
-//                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
-//                fileOutputStream.close();
-//            } catch (FileNotFoundException e) {
-//                Log.e(LOG_TAG, "saveImage : FileNotFoundExcetpion : e = " + e);
-//                return "n/a";
-//            } catch (IOException e) {
-//                Log.e(LOG_TAG, "saveImage : IOE : e = " + e);
-//                return "n/a";
-//            }
-
         }
-
-//        private File getOutputMediaFile() {
-//            File mediaStorageDir = new File(Environment.getExternalStorageDirectory()
-//            + "/Android/data"
-//            + getApplicationContext().getPackageName()
-//            + "/Files");
-//
-//            if (! mediaStorageDir.exists()) {
-//                if (! mediaStorageDir.mkdirs()) {
-//                    return null;
-//                }
-//            }
-//
-//            File mediaFile;
-//            String imageName = String.valueOf(this.movie.getMovieID());
-//            mediaFile = new File(mediaStorageDir.getPath() + File.separator + imageName);
-//
-//            return mediaFile;
-//        }
 
         private Bitmap streamImageToBitmap(String imageURL) {
             try {
@@ -528,5 +419,4 @@ public class MovieDetailActivity extends AppCompatActivity {
         }
 
     } // innerClass end here;
-
 }

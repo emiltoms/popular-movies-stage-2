@@ -1,18 +1,10 @@
 package com.example.mit.popularmovies;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.widget.ImageView;
-
-import java.io.ByteArrayOutputStream;
 
 public class Movie implements Parcelable {
 
-    private int dbId; // id in SQLite Database
     private int movieID;
     private String thumbnail;
     private String titleMovie;
@@ -20,22 +12,9 @@ public class Movie implements Parcelable {
     private String movieOverview;
     private String rating;
     private String imageLocalPath;
-    private boolean isAdult;
-    private int runTime;
-    private int voteCount;
 
     public Movie() {
     }
-
-//    public Movie(int movieID, String thumbnail, String titleMovie,
-//                 String releaseDate, String movieOverview, String rating) {
-//        this.movieID = movieID;
-//        this.thumbnail = thumbnail;
-//        this.titleMovie = titleMovie;
-//        this.releaseDate = releaseDate;
-//        this.movieOverview = movieOverview;
-//        this.rating = rating;
-//    }
 
     public Movie(int movieID, String thumbnail, String titleMovie,
                  String releaseDate, String movieOverview, String rating,
@@ -47,33 +26,6 @@ public class Movie implements Parcelable {
         this.movieOverview = movieOverview;
         this.rating = rating;
         this.imageLocalPath = imageLocalPath;
-//        this.isAdult = isAdult;
-//        this.runTime = runTime;
-//        this.voteCount = voteCount;
-    }
-
-    public boolean getIsAdult(){
-        return isAdult;
-    }
-
-    public int getRunTime() {
-        return runTime;
-    }
-
-    public int getVoteCount() {
-        return voteCount;
-    }
-
-    public void setAdult(boolean isAdult) {
-        this.isAdult = isAdult;
-    }
-
-    public void setRunTime(int runTime) {
-        this.runTime = runTime;
-    }
-
-    public void setVoteCount(int voteCount) {
-        this.voteCount = voteCount;
     }
 
     public String getImageLocalPath() {
@@ -86,10 +38,6 @@ public class Movie implements Parcelable {
 
     public int getMovieID() {
         return movieID;
-    }
-
-    public int getDbId() {
-        return dbId;
     }
 
     public String getMovieOverview() {
@@ -110,10 +58,6 @@ public class Movie implements Parcelable {
 
     public String getTitleMovie() {
         return titleMovie;
-    }
-
-    public void setDbId(int dbId) {
-        this.dbId = dbId;
     }
 
     public void setMovieID(int movieID) {
@@ -149,15 +93,6 @@ public class Movie implements Parcelable {
         movieOverview = in.readString();
         rating = in.readString();
         imageLocalPath = in.readString();
-
-//        int contentBytesInt = in.readInt();
-//        byte[] bytes = new byte[contentBytesInt];
-//        in.readByteArray(bytes);
-//        bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-
-//        bitmap = in.readParcelable(Bitmap.class.getClassLoader());
-//        bitmap = Bitmap.CREATOR.createFromParcel(in);
-//        bitmap = in.readParcelable(null);
     }
 
     @Override
@@ -174,15 +109,6 @@ public class Movie implements Parcelable {
         dest.writeString(movieOverview);
         dest.writeString(rating);
         dest.writeString(imageLocalPath);
-
-//        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-//        getBitmap().compress(Bitmap.CompressFormat.JPEG, 100, stream);
-//        byte[] bytes = stream.toByteArray();
-//        dest.writeInt(bytes.length);
-//        dest.writeByteArray(bytes);
-
-//        bitmap.writeToParcel(dest, flags);
-//        dest.writeValue(bitmap);
     }
 
     @SuppressWarnings("unused")

@@ -23,12 +23,12 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
             android:drawableEnd="@drawable/ic_launch_black_24dp"
-            android:drawableStart="@drawable/ic_play_arrow_black_24dp"
             android:drawablePadding="8dp"
+            android:drawableStart="@drawable/ic_play_arrow_black_24dp"
             android:gravity="center_vertical"
+            android:paddingEnd="16dp"
+            android:paddingStart="16dp"
             android:text="Watch"
             android:textSize="21sp" />
 

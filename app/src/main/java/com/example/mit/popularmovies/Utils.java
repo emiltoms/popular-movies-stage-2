@@ -3,7 +3,6 @@ package com.example.mit.popularmovies;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,7 +36,7 @@ public class Utils {
     private static final String OVERVIEW_JSON = "overview";
     private static final String VOTE_AVERAGE_JSON = "vote_average";
     private static final String POSTER_PATH_JSON = "poster_path";
-    
+
     private static final String API_KEY = "000"; // TODO Change API_KEY value to your key
     private static final String POSTER_PATH_LINK_BASE = "http://image.tmdb.org/t/p/w342";
 
@@ -54,7 +53,7 @@ public class Utils {
             return jsonResponse;
         }
 
-        Log.i(LOG_TAG, "URL with JSON = "+url);
+        Log.i(LOG_TAG, "URL with JSON = " + url);
 
         HttpURLConnection urlConnection = null;
         InputStream inputStream = null;
@@ -89,7 +88,6 @@ public class Utils {
     }
 
     public static List<Movie> takeMovies(String sortedBy) {
-
         String newUrl = createURL(sortedBy, NO_DATA_INT).toString();
         String jsonResponse = null;
 
@@ -104,7 +102,6 @@ public class Utils {
     }
 
     public static ArrayList<String> takeTrailers(int movieID) {
-
         String newUrl = createURL(NO_DATA, movieID).toString();
         String jsonResponse = null;
 
@@ -180,7 +177,7 @@ public class Utils {
                 }
 
                 if (movie.has(RELEASE_DATE_JSON)) {
-                    releaseDate = movie.getString(RELEASE_DATE_JSON).substring(0,4);
+                    releaseDate = movie.getString(RELEASE_DATE_JSON).substring(0, 4);
                 } else {
                     releaseDate = NO_DATA;
                 }
@@ -263,10 +260,5 @@ public class Utils {
     private static String createPosterURL(String posterPath) {
         return POSTER_PATH_LINK_BASE + posterPath;
     }
-
-//    private static String createTrailerLink(String key) {
-//        return
-//    }
-
 }
 

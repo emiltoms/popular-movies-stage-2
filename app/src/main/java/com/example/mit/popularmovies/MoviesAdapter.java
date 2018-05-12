@@ -6,9 +6,6 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.DrawableContainer;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,7 +23,6 @@ import java.util.List;
 
 class MoviesAdapter extends ArrayAdapter<Movie> {
 
-    String someString;
     private Context context;
 
     MoviesAdapter(Activity context, List<Movie> movies) {
@@ -80,7 +76,7 @@ class MoviesAdapter extends ArrayAdapter<Movie> {
             Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(f));
             imageView.setImageBitmap(bitmap);
         } catch (FileNotFoundException e) {
-            Log.w(MoviesAdapter.class.getSimpleName(), "loadLocalImage, FileNotFoundException, e == "+e);
+            Log.w(MoviesAdapter.class.getSimpleName(), "loadLocalImage, FileNotFoundException, e == " + e);
         }
     }
 

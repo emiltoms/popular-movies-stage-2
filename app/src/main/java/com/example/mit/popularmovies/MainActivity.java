@@ -21,7 +21,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -218,8 +217,8 @@ public class MainActivity extends AppCompatActivity implements
             adapter.notifyDataSetChanged();
 
         } else {
-            Log.w(LOG_TAG, TOAST_MSG_LOADER_HAS_EMPTY_LIST + "Utils.responseCode = "+ Utils.responseCode);
-            Toast.makeText(this, TOAST_MSG_LOADER_HAS_EMPTY_LIST + "\nError: "+ Utils.responseCode, Toast.LENGTH_LONG).show();
+            Log.w(LOG_TAG, TOAST_MSG_LOADER_HAS_EMPTY_LIST + "Utils.responseCode = " + Utils.responseCode);
+            Toast.makeText(this, TOAST_MSG_LOADER_HAS_EMPTY_LIST + "\nError: " + Utils.responseCode, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -282,6 +281,5 @@ public class MainActivity extends AppCompatActivity implements
         Log.i(LOG_TAG, "refreshGridView > numClomuns: " + numColumns);
         gridView.setNumColumns(numColumns);
     }
-
 }
 
