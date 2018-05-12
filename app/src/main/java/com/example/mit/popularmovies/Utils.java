@@ -3,6 +3,7 @@ package com.example.mit.popularmovies;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,6 +41,8 @@ public class Utils {
     private static final String API_KEY = "000"; // TODO Change API_KEY value to your key
     private static final String POSTER_PATH_LINK_BASE = "http://image.tmdb.org/t/p/w342";
 
+    public static int responseCode;
+
     public Utils() {
     }
 
@@ -63,7 +66,7 @@ public class Utils {
             urlConnection.setConnectTimeout(15000);
             urlConnection.connect();
 
-            int responseCode = urlConnection.getResponseCode();
+            responseCode = urlConnection.getResponseCode();
             Log.i(LOG_TAG, LOG_MSG_RESPONSE_CODE + responseCode);
             if (responseCode == 200) {
                 inputStream = urlConnection.getInputStream();
@@ -141,7 +144,7 @@ public class Utils {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        Log.e(LOG_TAG, LOG_MSG_JSON_EXTRACTED + stringList);
+        Log.i(LOG_TAG, LOG_MSG_JSON_EXTRACTED + stringList);
         return stringList;
     }
 

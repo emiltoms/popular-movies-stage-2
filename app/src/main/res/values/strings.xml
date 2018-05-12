@@ -24,4 +24,5 @@
     <string name="item_three">Favorites</string>
     <string name="item_favorite">Favorite</string>
     <string name="back_to_top_description">Back to top</string>
+    <string name="share_movie_menu_item">Share</string>
 </resources>

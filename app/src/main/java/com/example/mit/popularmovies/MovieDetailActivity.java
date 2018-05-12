@@ -17,6 +17,7 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -28,7 +29,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.ShareActionProvider;
+import android.support.v7.widget.ShareActionProvider;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -103,7 +104,7 @@ public class MovieDetailActivity extends AppCompatActivity {
     private TrailersAdapter recyclerAdapter;
     private RecyclerView.LayoutManager recyclerLayoutManager;
 
-    private android.support.v7.widget.ShareActionProvider shareActionProvider;
+    ShareActionProvider shareActionProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -236,7 +237,7 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         MenuItem shareItem = menu.findItem(R.id.menu_item_share);
 
-        shareActionProvider = (android.support.v7.widget.ShareActionProvider) MenuItem.getActionProvider(shareItem);
+        shareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(shareItem);
 
         setShareActionProvider();
         return true;
@@ -245,18 +246,23 @@ public class MovieDetailActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case android.R.id.home:
+            case android.R.id.home :
                 finish();
                 return true;
-            case R.id.menu_item_favorite:
-                Log.i(LOG_TAG, "Fav MENU ITEM CLICKED");
-                return true;
+//            case R.id.menu_item_share :
+//                Toast.makeText(context, "MenuItem SHARE clicked", Toast.LENGTH_SHORT).show();
+//                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    private void setShareActionProvider(Intent intent) {
+    private void setShareActionProvider() {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.putExtra(Intent.EXTRA_TEXT, selectedMovie.getTitleMovie());
+        intent.putExtra(Intent.EXTRA_TEXT, selectedMovie.getRating());
+        intent.setType("text/plain");
+
         if (shareActionProvider != null) {
             shareActionProvider.setShareIntent(intent);
         }

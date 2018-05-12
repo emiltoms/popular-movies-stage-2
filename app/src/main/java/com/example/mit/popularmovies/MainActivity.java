@@ -210,6 +210,7 @@ public class MainActivity extends AppCompatActivity implements
         if (swipeRefreshLayout.isRefreshing()) {
             swipeRefreshLayout.setRefreshing(false);
         }
+
         if (movies != null) {
             moviesData.clear();
             adapter.clear();
@@ -217,8 +218,8 @@ public class MainActivity extends AppCompatActivity implements
             adapter.notifyDataSetChanged();
 
         } else {
-            showOfflineSnackbar();
-            Toast.makeText(this, TOAST_MSG_LOADER_HAS_EMPTY_LIST, Toast.LENGTH_LONG).show();
+            Log.w(LOG_TAG, TOAST_MSG_LOADER_HAS_EMPTY_LIST + "Utils.responseCode = "+ Utils.responseCode);
+            Toast.makeText(this, TOAST_MSG_LOADER_HAS_EMPTY_LIST + "\nError: "+ Utils.responseCode, Toast.LENGTH_LONG).show();
         }
     }
 
