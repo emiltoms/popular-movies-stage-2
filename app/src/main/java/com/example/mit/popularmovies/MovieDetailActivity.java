@@ -11,6 +11,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
@@ -33,6 +34,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.mit.popularmovies.data.FavoriteMovieContract;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -360,6 +362,14 @@ public class MovieDetailActivity extends AppCompatActivity {
                     values.put(FavMoviesDbAdapter.LOCALPATH, this.movie.getImageLocalPath());
 
                     Log.i(LOG_TAG, "ConventValues == " + values);
+
+                    // TODO: contentResolver
+                    Uri uri = getContentResolver().insert(
+                            FavoriteMovieContract.FavoriteMovieEntry.CONTENT_URI, values);
+
+                    if (uri != null) {
+                        Log.i(LOG_TAG, "ContentResolver.insert() = uri = " +uri);
+                    }
 
                     return favMoviesDbAdapter.insertMovie(values);
 
