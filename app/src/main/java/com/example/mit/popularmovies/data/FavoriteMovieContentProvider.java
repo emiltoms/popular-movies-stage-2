@@ -7,14 +7,15 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import static com.example.mit.popularmovies.data.FavoriteMovieContract.FavoriteMovieEntry.*;
 
 public class FavoriteMovieContentProvider extends ContentProvider {
+    private static final String LOG_TAG = FavoriteMovieContentProvider.class.getSimpleName();
 
     public static final int MOVIES = 100;
     public static final int MOVIE_WITH_ID = 101;
@@ -42,8 +43,39 @@ public class FavoriteMovieContentProvider extends ContentProvider {
 
     @Nullable
     @Override
-    public Cursor query(@NonNull Uri uri, @Nullable String[] strings, @Nullable String s, @Nullable String[] strings1, @Nullable String s1) {
-        return null;
+    public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection,
+                        @Nullable String[] selectionArgs, @Nullable String sortOrder) {
+        final SQLiteDatabase database = favoriteMovieSQLDbHelper.getWritableDatabase();
+
+        int matchUri = sUriMatcher.match(uri);
+
+        Cursor cursor;
+
+        switch (matchUri) {
+            case MOVIES :
+                cursor = database.query(TABLE_NAME, projection, selection, selectionArgs,
+                        null, null, sortOrder);
+                break;
+
+            case MOVIE_WITH_ID :
+                // uri : content://<authority/directory/#
+                //---------------------------/----0----/1
+                String id = uri.getPathSegments().get(1);
+
+                String mSelection = "_id=?";
+                String[] mSelectionArgs = new String[]{id};
+
+                cursor = database.query(TABLE_NAME, projection, mSelection, mSelectionArgs,
+                        null, null, sortOrder);
+
+                break;
+            default :
+                throw new UnsupportedOperationException("Unknown Uri: "+uri);
+        }
+
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
+
+        return cursor;
     }
 
     @Nullable
@@ -55,13 +87,13 @@ public class FavoriteMovieContentProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues contentValues) {
-        SQLiteDatabase sqLiteOpenHelper = favoriteMovieSQLDbHelper.getWritableDatabase();
+        final SQLiteDatabase database = favoriteMovieSQLDbHelper.getWritableDatabase();
 
         Uri returnUri;
 
         switch (sUriMatcher.match(uri)) {
             case MOVIE_WITH_ID:
-                long id = sqLiteOpenHelper.insert(
+                long id = database.insert(
                         TABLE_NAME,
                         null, contentValues);
 
@@ -82,8 +114,35 @@ public class FavoriteMovieContentProvider extends ContentProvider {
     }
 
     @Override
-    public int delete(@NonNull Uri uri, @Nullable String s, @Nullable String[] strings) {
-        return 0;
+    public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
+        final SQLiteDatabase database = favoriteMovieSQLDbHelper.getWritableDatabase();
+
+        int delete;
+
+        int match = sUriMatcher.match(uri);
+
+        switch (match) {
+            case MOVIE_WITH_ID :
+                // uri content://<authority>/directory/#
+                //--------------------------/----0----/1
+                String id = uri.getPathSegments().get(1);
+
+                String mSelection = "_id=?";
+                String[] mSelectionArgs = new String[]{id};
+
+                delete = database.delete(TABLE_NAME, mSelection, mSelectionArgs);
+
+                Log.i(LOG_TAG, "Deleted row: "+delete);
+
+                break;
+            default :
+                // This application will not be able to remove more than one row.
+                throw new UnsupportedOperationException("Unknown uri: "+uri);
+        }
+
+        getContext().getContentResolver().notifyChange(uri,null);
+
+        return delete;
     }
 
     @Override
