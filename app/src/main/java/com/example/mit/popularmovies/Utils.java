@@ -201,9 +201,8 @@ public class Utils {
                 }
 
                 // Add movie with new data to list
-                Movie item = new Movie(
-                        movieID, thumbnail, titleMovie,
-                        releaseDate, movieOverview, rating, NO_DATA);
+                Movie item = new Movie(movieID, thumbnail, titleMovie,
+                        releaseDate, movieOverview, rating, NO_DATA, NO_DATA);
                 movies.add(item);
             }
 

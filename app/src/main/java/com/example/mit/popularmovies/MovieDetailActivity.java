@@ -35,6 +35,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.mit.popularmovies.data.FavoriteMovieContract;
+import com.example.mit.popularmovies.data.FavoriteMovieContract.FavoriteMovieEntry;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -93,6 +94,8 @@ public class MovieDetailActivity extends AppCompatActivity {
     private TrailersAdapter recyclerAdapter;
     private RecyclerView.LayoutManager recyclerLayoutManager;
 
+//    private long idInDb = -1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,6 +109,13 @@ public class MovieDetailActivity extends AppCompatActivity {
             Toast.makeText(this, MSG_NULL_EXCEPTION, Toast.LENGTH_SHORT).show();
             closeActivity();
         }
+
+//        if (selectedMovie != null){
+//            if (selectedMovie.getIdInDb() > -1) {
+//                idInDb = selectedMovie.getIdInDb();
+//            }
+//        }
+
         nestedScrollView = findViewById(R.id.nested_scroll_view);
         nestedScrollView.scrollTo(0, 0);
 
@@ -187,7 +197,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         if (internetStatus()) {
             isInternetConnection = true;
             recyclerViewOfflineTextView.setVisibility(View.GONE);
-            recyclerLayoutManager = new LinearLayoutManager(this);
+            recyclerLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
             recyclerLayoutManager.setAutoMeasureEnabled(true);
             recyclerView.setLayoutManager(recyclerLayoutManager);
             recyclerView.setNestedScrollingEnabled(false);
@@ -284,22 +294,25 @@ public class MovieDetailActivity extends AppCompatActivity {
     private class ConnectToDatabase extends AsyncTask<Movie, Integer, Long> {
 
         private ArrayList<String> loadTrailersData;
-        private FavMoviesDbAdapter favMoviesDbAdapter;
+//        private FavMoviesDbAdapter favMoviesDbAdapter;
         private Movie movie;
+
+        Cursor cursor;
 
         @Override
         protected void onPreExecute() {
-            favMoviesDbAdapter = new FavMoviesDbAdapter(context);
-            try {
-                favMoviesDbAdapter.open();
-            } catch (SQLException e) {
-                Log.e(LOG_TAG, "onPreExecute() : exception : e == " + e);
-            }
+//            favMoviesDbAdapter = new FavMoviesDbAdapter(context);
+//            try {
+//                favMoviesDbAdapter.open();
+//            } catch (SQLException e) {
+//                Log.e(LOG_TAG, "onPreExecute() : exception : e == " + e);
+//            }
+            Log.i(LOG_TAG, "AsyncTask");
         }
 
         @Override
         protected void onPostExecute(Long result) {
-            favMoviesDbAdapter.close();
+//            favMoviesDbAdapter.close();
 
             if (isInternetConnection) {
                 trailersData = loadTrailersData;
@@ -308,6 +321,8 @@ public class MovieDetailActivity extends AppCompatActivity {
             }
 
             if (result > -1) {
+                // movie saved correctly
+                newAdnotation("Saved. \n"+result);
                 setButtonStatus(true);
             } else if (result == -1) {
                 newAdnotation("I CAN'T SAVE THIS MOVIE." + "\n" + result);
@@ -319,8 +334,15 @@ public class MovieDetailActivity extends AppCompatActivity {
             } else if (result.equals(NOT_IN_FAVORITES)) {
                 setButtonStatus(false);
             } else if (result.equals(REMOVED_FROM_FAVORITES)) {
+                // movie deleted correctly
+                newAdnotation("Removed. \n"+result);
                 setButtonStatus(false);
             }
+
+            if (cursor != null) {
+                cursor.close();
+            }
+
             favButton.setEnabled(true);
         }
 
@@ -330,13 +352,27 @@ public class MovieDetailActivity extends AppCompatActivity {
 
             loadTrailersData = Utils.takeTrailers(this.movie.getMovieID());
 
-            Cursor movieCursor = favMoviesDbAdapter.getMovie(this.movie.getMovieID());
-            if (movieCursor.getCount() > 0) {
-                // This movie is already in db.
+            Uri baseUri = FavoriteMovieEntry.CONTENT_URI;
+
+            cursor = context.getContentResolver().query(baseUri, null,
+                        FavoriteMovieEntry.MOVIE_ID + "=" + selectedMovie.getMovieID(),
+                        null,null);
+
+            Log.i(LOG_TAG, "return CURSOR: "+cursor);
+
+            if (cursor.getCount() > 0) {
+                // this movie is in db
+
+                cursor.moveToFirst();
+
+                String idInDb = String.valueOf(cursor.getLong(cursor.getColumnIndex("_id")));
+
+                Uri movieUri = baseUri.buildUpon().appendPath(idInDb).build();
+
                 if (btnClicked) {
                     // If from user initiate
                     btnClicked = false;
-                    if (favMoviesDbAdapter.removeMovie(this.movie.getMovieID())) {
+                    if (getContentResolver().delete(movieUri, null, null) > 0) {
                         return REMOVED_FROM_FAVORITES;
                     } else {
                         return ERROR_FROM_DATABASE_OPERATION;
@@ -347,37 +383,104 @@ public class MovieDetailActivity extends AppCompatActivity {
                     return ALREADY_IN_FAVORITES;
                 }
             } else {
-                // This movie is not in db.
+                // this movie is not in db
                 if (btnClicked) {
                     // If from User initiate
+                    // INSERT MOVIE WITH URI
                     this.movie.setImageLocalPath(newLocalImagePath(this.movie.getMovieID(), this.movie.getThumbnail())); // Save image on hardware and get path to it.
                     Log.i(LOG_TAG, "imageLocalPath == " + this.movie.getImageLocalPath());
+
                     ContentValues values = new ContentValues();
-                    values.put(FavMoviesDbAdapter.MOVIE_ID, this.movie.getMovieID());
-                    values.put(FavMoviesDbAdapter.THUMBNAIL, this.movie.getThumbnail());
-                    values.put(FavMoviesDbAdapter.NAME, this.movie.getTitleMovie());
-                    values.put(FavMoviesDbAdapter.RELEASE_DATE, this.movie.getReleaseDate());
-                    values.put(FavMoviesDbAdapter.OVERVIEW, this.movie.getMovieOverview());
-                    values.put(FavMoviesDbAdapter.RATING, this.movie.getRating());
-                    values.put(FavMoviesDbAdapter.LOCALPATH, this.movie.getImageLocalPath());
+                    values.put(FavoriteMovieEntry.MOVIE_ID, this.movie.getMovieID());
+                    values.put(FavoriteMovieEntry.THUMBNAIL, this.movie.getThumbnail());
+                    values.put(FavoriteMovieEntry.NAME, this.movie.getTitleMovie());
+                    values.put(FavoriteMovieEntry.RELEASE_DATE, this.movie.getReleaseDate());
+                    values.put(FavoriteMovieEntry.OVERVIEW, this.movie.getMovieOverview());
+                    values.put(FavoriteMovieEntry.RATING, this.movie.getRating());
+                    values.put(FavoriteMovieEntry.LOCALPATH, this.movie.getImageLocalPath());
 
                     Log.i(LOG_TAG, "ConventValues == " + values);
 
                     // TODO: contentResolver
-                    Uri uri = getContentResolver().insert(
-                            FavoriteMovieContract.FavoriteMovieEntry.CONTENT_URI, values);
+                    Uri newUri = getContentResolver().insert(
+                            baseUri, values);
 
-                    if (uri != null) {
-                        Log.i(LOG_TAG, "ContentResolver.insert() = uri = " +uri);
+                    long ret = ERROR_FROM_DATABASE_OPERATION;
+
+                    if (newUri != null) {
+                        ret = Long.parseLong(newUri.getPathSegments().get(1));
+                        Log.i(LOG_TAG, "ContentResolver.insert() = uri = " +newUri+
+                                "\n long ret = "+ret);
                     }
 
-                    return favMoviesDbAdapter.insertMovie(values);
+                    return ret;
 
                 } else {
                     // This movie is not favorites (so it is not in database neither).
                     return NOT_IN_FAVORITES;
                 }
             }
+
+//            cursor = getContentResolver().query(moviesUri,null,
+//                    FavoriteMovieEntry.MOVIE_ID + "=" + selectedMovie.getMovieID(),
+//                    null,null);
+//
+//            if (cursor.getCount() > 0) {
+//                // This movie is already in db.
+//                if (btnClicked) {
+//                    // If from user initiate
+//                    btnClicked = false;
+//                    if (getContentResolver().delete(moviesUri, null, null) > 0) {
+//                        return REMOVED_FROM_FAVORITES;
+//                    } else {
+//                        return ERROR_FROM_DATABASE_OPERATION;
+//                    }
+//                } else {
+//                    // If from onCreate initiate
+//                    loadLocalImage(this.movie.getImageLocalPath());
+//                    idInDb = selectedMovie.getIdInDb();
+//                    return ALREADY_IN_FAVORITES;
+//                }
+//            } else {
+//                // This movie is not in db.
+//                if (btnClicked) {
+//                    // If from User initiate
+//                    // INSERT MOVIE WITH URI
+//                    this.movie.setImageLocalPath(newLocalImagePath(this.movie.getMovieID(), this.movie.getThumbnail())); // Save image on hardware and get path to it.
+//                    Log.i(LOG_TAG, "imageLocalPath == " + this.movie.getImageLocalPath());
+//
+//                    ContentValues values = new ContentValues();
+//                    values.put(FavoriteMovieEntry.MOVIE_ID, this.movie.getMovieID());
+//                    values.put(FavoriteMovieEntry.THUMBNAIL, this.movie.getThumbnail());
+//                    values.put(FavoriteMovieEntry.NAME, this.movie.getTitleMovie());
+//                    values.put(FavoriteMovieEntry.RELEASE_DATE, this.movie.getReleaseDate());
+//                    values.put(FavoriteMovieEntry.OVERVIEW, this.movie.getMovieOverview());
+//                    values.put(FavoriteMovieEntry.RATING, this.movie.getRating());
+//                    values.put(FavoriteMovieEntry.LOCALPATH, this.movie.getImageLocalPath());
+//
+//                    Log.i(LOG_TAG, "ConventValues == " + values);
+//
+//                    // TODO: contentResolver
+//                    Uri uri = getContentResolver().insert(
+//                            FavoriteMovieEntry.CONTENT_URI, values);
+//
+//                    long ret = ERROR_FROM_DATABASE_OPERATION;
+//
+//                    if (uri != null) {
+//                        ret = Long.parseLong(uri.getPathSegments().get(1));
+//                        Log.i(LOG_TAG, "ContentResolver.insert() = uri = " +uri+
+//                                            "\n long ret = "+ret);
+//
+//                        idInDb = ret;
+//                    }
+//
+//                    return ret;
+//
+//                } else {
+//                    // This movie is not favorites (so it is not in database neither).
+//                    return NOT_IN_FAVORITES;
+//                }
+//            }
         }
 
         private void loadLocalImage(String localImagePath) {

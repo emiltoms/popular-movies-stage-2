@@ -12,13 +12,14 @@ public class Movie implements Parcelable {
     private String movieOverview;
     private String rating;
     private String imageLocalPath;
+    private String review;
 
     public Movie() {
     }
 
     public Movie(int movieID, String thumbnail, String titleMovie,
                  String releaseDate, String movieOverview, String rating,
-                 String imageLocalPath) {
+                 String imageLocalPath, String review) {
         this.movieID = movieID;
         this.thumbnail = thumbnail;
         this.titleMovie = titleMovie;
@@ -26,6 +27,7 @@ public class Movie implements Parcelable {
         this.movieOverview = movieOverview;
         this.rating = rating;
         this.imageLocalPath = imageLocalPath;
+        this.review = review;
     }
 
     public String getImageLocalPath() {
@@ -38,6 +40,14 @@ public class Movie implements Parcelable {
 
     public int getMovieID() {
         return movieID;
+    }
+
+    public String getReview() {
+        return review;
+    }
+
+    public void setReview(String review) {
+        this.review = review;
     }
 
     public String getMovieOverview() {
@@ -84,7 +94,6 @@ public class Movie implements Parcelable {
         this.titleMovie = titleMovie;
     }
 
-
     private Movie(Parcel in) {
         movieID = in.readInt();
         thumbnail = in.readString();
@@ -93,6 +102,7 @@ public class Movie implements Parcelable {
         movieOverview = in.readString();
         rating = in.readString();
         imageLocalPath = in.readString();
+        review = in.readString();
     }
 
     @Override
@@ -109,6 +119,7 @@ public class Movie implements Parcelable {
         dest.writeString(movieOverview);
         dest.writeString(rating);
         dest.writeString(imageLocalPath);
+        dest.writeString(review);
     }
 
     @SuppressWarnings("unused")

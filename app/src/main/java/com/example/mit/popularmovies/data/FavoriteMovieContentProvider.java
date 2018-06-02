@@ -3,6 +3,7 @@ package com.example.mit.popularmovies.data;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -19,6 +20,7 @@ public class FavoriteMovieContentProvider extends ContentProvider {
 
     public static final int MOVIES = 100;
     public static final int MOVIE_WITH_ID = 101;
+    public static final int MOVIE_WEB_ID = 102;
     private static final UriMatcher sUriMatcher = createUriMatcher();
     private FavoriteMovieSQLDbHelper favoriteMovieSQLDbHelper;
 
@@ -31,13 +33,17 @@ public class FavoriteMovieContentProvider extends ContentProvider {
         uriMatcher.addURI(FavoriteMovieContract.AUTHORITY,
                 FavoriteMovieContract.PATH_TO_FAVORITE_MOVIES + "/#",
                 MOVIE_WITH_ID);
+        uriMatcher.addURI(FavoriteMovieContract.AUTHORITY,
+                FavoriteMovieContract.PATH_TO_FAVORITE_MOVIES + "/movieId",
+                MOVIE_WEB_ID);
 
         return uriMatcher;
     }
 
     @Override
     public boolean onCreate() {
-        favoriteMovieSQLDbHelper = new FavoriteMovieSQLDbHelper(getContext());
+        Context context = getContext();
+        favoriteMovieSQLDbHelper = new FavoriteMovieSQLDbHelper(context);
         return true;
     }
 
@@ -55,8 +61,8 @@ public class FavoriteMovieContentProvider extends ContentProvider {
             case MOVIES :
                 cursor = database.query(TABLE_NAME, projection, selection, selectionArgs,
                         null, null, sortOrder);
-                break;
 
+                break;
             case MOVIE_WITH_ID :
                 // uri : content://<authority/directory/#
                 //---------------------------/----0----/1
@@ -92,7 +98,7 @@ public class FavoriteMovieContentProvider extends ContentProvider {
         Uri returnUri;
 
         switch (sUriMatcher.match(uri)) {
-            case MOVIE_WITH_ID:
+            case MOVIES:
                 long id = database.insert(
                         TABLE_NAME,
                         null, contentValues);
@@ -114,7 +120,7 @@ public class FavoriteMovieContentProvider extends ContentProvider {
     }
 
     @Override
-    public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
+    public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] movieId) {
         final SQLiteDatabase database = favoriteMovieSQLDbHelper.getWritableDatabase();
 
         int delete;

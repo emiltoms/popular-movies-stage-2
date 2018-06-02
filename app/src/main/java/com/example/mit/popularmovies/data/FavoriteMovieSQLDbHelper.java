@@ -10,29 +10,28 @@ import com.example.mit.popularmovies.data.FavoriteMovieContract.FavoriteMovieEnt
 public class FavoriteMovieSQLDbHelper extends SQLiteOpenHelper {
 
     private static final String LOG_TAG = FavoriteMovieSQLDbHelper.class.getSimpleName();
-    private static final String DATABASE_NAME = "FAVORITE_MOVIES.db";
-    private static final int DATABASE_VERSION = 1;
-
-    private static final String CREATE_TABLE_FAVORITE_MOVIES =
-            "create table " + FavoriteMovieEntry.TABLE_NAME + "("
-                    + FavoriteMovieEntry.KEY_ROWID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                    + FavoriteMovieEntry.NAME + " TEXT, "
-                    + FavoriteMovieEntry.MOVIE_ID + " INTEGER UNIQUE, "
-                    + FavoriteMovieEntry.THUMBNAIL + " TEXT, "
-                    + FavoriteMovieEntry.RELEASE_DATE + " TEXT, "
-                    + FavoriteMovieEntry.OVERVIEW + " TEXT, "
-                    + FavoriteMovieEntry.RATING + " TEXT, "
-                    + FavoriteMovieEntry.LOCALPATH + " TEXT"
-                    + ");";
+    private static final String DATABASE_NAME = "FAVORITE_MOVIES_DB.db";
+    private static final int DATABASE_VERSION = 6;
 
 
-    public FavoriteMovieSQLDbHelper(Context context) {
+    FavoriteMovieSQLDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
+        String CREATE_TABLE_FAVORITE_MOVIES = "CREATE TABLE "
+                + FavoriteMovieEntry.TABLE_NAME + " ("
+                + FavoriteMovieEntry.KEY_ROWID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + FavoriteMovieEntry.NAME + " TEXT, "
+                + FavoriteMovieEntry.MOVIE_ID + " INTEGER UNIQUE, "
+                + FavoriteMovieEntry.THUMBNAIL + " TEXT, "
+                + FavoriteMovieEntry.RELEASE_DATE + " TEXT, "
+                + FavoriteMovieEntry.OVERVIEW + " TEXT, "
+                + FavoriteMovieEntry.RATING + " TEXT, "
+                + FavoriteMovieEntry.LOCALPATH + " TEXT"
+                + ");";
         sqLiteDatabase.execSQL(CREATE_TABLE_FAVORITE_MOVIES);
     }
 
