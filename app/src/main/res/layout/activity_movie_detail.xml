@@ -59,7 +59,7 @@
                     android:layout_marginEnd="24dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:text="Read more"
+                    android:text="@string/show_big_textview"
                     android:textColor="@color/colorAccent"
                     android:textStyle="bold" />
 
@@ -72,6 +72,8 @@
                 android:layout_marginTop="8dp"
                 android:background="@drawable/item_icon_gradient" />
 
+            <!-- TRAILERS -->
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -81,17 +83,15 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
                     android:layout_marginStart="16dp"
-                    android:text="Trailers and Clips:"
+                    android:text="@string/trailers_element_title"
                     android:textSize="18sp" />
-
 
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/trailer_recyclerView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="32dp" />
+                    android:scrollbars="horizontal" />
 
             </LinearLayout>
 
@@ -102,19 +102,21 @@
                 android:layout_marginTop="8dp"
                 android:background="@drawable/item_icon_gradient" />
 
-            <!--REVIEW ELEMENT-->
-            <RelativeLayout
+            <!-- REVIEW -->
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
                 android:layout_marginStart="16dp"
+                android:orientation="vertical"
                 android:paddingBottom="4dp"
                 android:paddingTop="4dp">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Users Reviews:"
+                    android:text="@string/users_reviews_element_title"
                     android:textSize="18sp" />
 
                 <TextView
@@ -130,11 +132,11 @@
                     android:layout_marginEnd="24dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:text="Show more"
+                    android:text="@string/show_big_textview"
                     android:textColor="@color/colorAccent"
                     android:textStyle="bold" />
 
-            </RelativeLayout>
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/offline_recyclerView_alternative_textView"
@@ -143,7 +145,7 @@
                 android:layout_gravity="center"
                 android:layout_margin="16dp"
                 android:gravity="center"
-                android:text="Can't load trailers when offline."
+                android:text="@string/offline_load_msg"
                 android:textColor="@android:color/darker_gray"
                 android:textStyle="bold|italic"
                 android:visibility="gone" />
@@ -209,7 +211,7 @@
         android:id="@+id/movie_floating_action_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="16dp"
+        android:layout_marginEnd="16dp"
         android:elevation="8dp"
         android:src="@drawable/ic_favorite_border_black_24dp"
         app:layout_anchor="@id/appBar"

@@ -25,4 +25,8 @@
     <string name="item_favorite">Favorite</string>
     <string name="back_to_top_description">Back to top</string>
     <string name="share_movie_menu_item">Share</string>
+    <string name="offline_load_msg">Can\'t load trailers when offline.</string>
+    <string name="show_big_textview">Read more</string>
+    <string name="users_reviews_element_title">Users Reviews:</string>
+    <string name="trailers_element_title">Trailers and Clips:</string>
 </resources>

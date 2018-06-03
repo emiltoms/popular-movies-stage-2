@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
@@ -34,7 +33,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.mit.popularmovies.data.FavoriteMovieContract;
 import com.example.mit.popularmovies.data.FavoriteMovieContract.FavoriteMovieEntry;
 import com.squareup.picasso.Picasso;
 
@@ -78,8 +76,13 @@ public class MovieDetailActivity extends AppCompatActivity {
     TextView readMoreTextView;
     @BindView(R.id.offline_recyclerView_alternative_textView)
     TextView recyclerViewOfflineTextView;
+    @BindView(R.id.movie_review_tv)
+    TextView movieReviewTV;
+    @BindView(R.id.review_read_more_tv)
+    TextView reviewReadMoreTv;
 
     ArrayList<String> trailersData;
+    ArrayList<String> reviewsData;
     FloatingActionButton favButton;
     FloatingActionButton favButtonBottom;
     NestedScrollView nestedScrollView;
@@ -94,8 +97,6 @@ public class MovieDetailActivity extends AppCompatActivity {
     private TrailersAdapter recyclerAdapter;
     private RecyclerView.LayoutManager recyclerLayoutManager;
 
-//    private long idInDb = -1;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -109,12 +110,6 @@ public class MovieDetailActivity extends AppCompatActivity {
             Toast.makeText(this, MSG_NULL_EXCEPTION, Toast.LENGTH_SHORT).show();
             closeActivity();
         }
-
-//        if (selectedMovie != null){
-//            if (selectedMovie.getIdInDb() > -1) {
-//                idInDb = selectedMovie.getIdInDb();
-//            }
-//        }
 
         nestedScrollView = findViewById(R.id.nested_scroll_view);
         nestedScrollView.scrollTo(0, 0);
@@ -263,6 +258,8 @@ public class MovieDetailActivity extends AppCompatActivity {
         }
     }
 
+//    public void setReviews()
+
     @Override
     public void onBackPressed() {
         finish();
@@ -293,36 +290,51 @@ public class MovieDetailActivity extends AppCompatActivity {
     @SuppressLint("StaticFieldLeak")
     private class ConnectToDatabase extends AsyncTask<Movie, Integer, Long> {
 
-        private ArrayList<String> loadTrailersData;
-//        private FavMoviesDbAdapter favMoviesDbAdapter;
-        private Movie movie;
-
         Cursor cursor;
+        private ArrayList<String> loadTrailersData;
+        private Movie movie;
 
         @Override
         protected void onPreExecute() {
-//            favMoviesDbAdapter = new FavMoviesDbAdapter(context);
-//            try {
-//                favMoviesDbAdapter.open();
-//            } catch (SQLException e) {
-//                Log.e(LOG_TAG, "onPreExecute() : exception : e == " + e);
-//            }
-            Log.i(LOG_TAG, "AsyncTask");
+            Log.i(LOG_TAG, "AsyncTasks Started.");
         }
 
         @Override
         protected void onPostExecute(Long result) {
-//            favMoviesDbAdapter.close();
 
             if (isInternetConnection) {
-                trailersData = loadTrailersData;
-                recyclerAdapter = new TrailersAdapter(trailersData, context);
-                recyclerView.setAdapter(recyclerAdapter);
+                if (!loadTrailersData.isEmpty()) {
+                    trailersData = loadTrailersData;
+                    recyclerAdapter = new TrailersAdapter(trailersData, context);
+                    recyclerView.setAdapter(recyclerAdapter);
+                }
+
+                if (!reviewsData.isEmpty()) {
+                    final StringBuilder rev = new StringBuilder();
+                    for (int i = 0; i < reviewsData.size(); i++) {
+                        rev.append(reviewsData.get(i));
+                        rev.append("\n");
+                    }
+                    if (rev.length() > 150) {
+                        movieReviewTV.setText(rev.toString().substring(0, 100) + "...");
+                        reviewReadMoreTv.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                reviewReadMoreTv.setVisibility(View.GONE);
+                                movieReviewTV.setText(rev.toString());
+                            }
+                        });
+                    } else {
+                        reviewReadMoreTv.setVisibility(View.GONE);
+                        movieReviewTV.setText(rev.toString());
+                    }
+                }
             }
+
 
             if (result > -1) {
                 // movie saved correctly
-                newAdnotation("Saved. \n"+result);
+                newAdnotation("Saved. \n" + result);
                 setButtonStatus(true);
             } else if (result == -1) {
                 newAdnotation("I CAN'T SAVE THIS MOVIE." + "\n" + result);
@@ -335,7 +347,7 @@ public class MovieDetailActivity extends AppCompatActivity {
                 setButtonStatus(false);
             } else if (result.equals(REMOVED_FROM_FAVORITES)) {
                 // movie deleted correctly
-                newAdnotation("Removed. \n"+result);
+                newAdnotation("Removed. \n" + result);
                 setButtonStatus(false);
             }
 
@@ -350,15 +362,20 @@ public class MovieDetailActivity extends AppCompatActivity {
         protected Long doInBackground(Movie... movie) {
             this.movie = movie[0];
 
+            // load reviews
+            reviewsData = Utils.takeReviews(this.movie.getMovieID());
+
+            // load trailers
             loadTrailersData = Utils.takeTrailers(this.movie.getMovieID());
 
+            // work with db
             Uri baseUri = FavoriteMovieEntry.CONTENT_URI;
 
             cursor = context.getContentResolver().query(baseUri, null,
-                        FavoriteMovieEntry.MOVIE_ID + "=" + selectedMovie.getMovieID(),
-                        null,null);
+                    FavoriteMovieEntry.MOVIE_ID + "=" + selectedMovie.getMovieID(),
+                    null, null);
 
-            Log.i(LOG_TAG, "return CURSOR: "+cursor);
+            Log.i(LOG_TAG, "return CURSOR: " + cursor);
 
             if (cursor.getCount() > 0) {
                 // this movie is in db
@@ -409,8 +426,8 @@ public class MovieDetailActivity extends AppCompatActivity {
 
                     if (newUri != null) {
                         ret = Long.parseLong(newUri.getPathSegments().get(1));
-                        Log.i(LOG_TAG, "ContentResolver.insert() = uri = " +newUri+
-                                "\n long ret = "+ret);
+                        Log.i(LOG_TAG, "ContentResolver.insert() = uri = " + newUri +
+                                "\n long ret = " + ret);
                     }
 
                     return ret;
@@ -420,67 +437,6 @@ public class MovieDetailActivity extends AppCompatActivity {
                     return NOT_IN_FAVORITES;
                 }
             }
-
-//            cursor = getContentResolver().query(moviesUri,null,
-//                    FavoriteMovieEntry.MOVIE_ID + "=" + selectedMovie.getMovieID(),
-//                    null,null);
-//
-//            if (cursor.getCount() > 0) {
-//                // This movie is already in db.
-//                if (btnClicked) {
-//                    // If from user initiate
-//                    btnClicked = false;
-//                    if (getContentResolver().delete(moviesUri, null, null) > 0) {
-//                        return REMOVED_FROM_FAVORITES;
-//                    } else {
-//                        return ERROR_FROM_DATABASE_OPERATION;
-//                    }
-//                } else {
-//                    // If from onCreate initiate
-//                    loadLocalImage(this.movie.getImageLocalPath());
-//                    idInDb = selectedMovie.getIdInDb();
-//                    return ALREADY_IN_FAVORITES;
-//                }
-//            } else {
-//                // This movie is not in db.
-//                if (btnClicked) {
-//                    // If from User initiate
-//                    // INSERT MOVIE WITH URI
-//                    this.movie.setImageLocalPath(newLocalImagePath(this.movie.getMovieID(), this.movie.getThumbnail())); // Save image on hardware and get path to it.
-//                    Log.i(LOG_TAG, "imageLocalPath == " + this.movie.getImageLocalPath());
-//
-//                    ContentValues values = new ContentValues();
-//                    values.put(FavoriteMovieEntry.MOVIE_ID, this.movie.getMovieID());
-//                    values.put(FavoriteMovieEntry.THUMBNAIL, this.movie.getThumbnail());
-//                    values.put(FavoriteMovieEntry.NAME, this.movie.getTitleMovie());
-//                    values.put(FavoriteMovieEntry.RELEASE_DATE, this.movie.getReleaseDate());
-//                    values.put(FavoriteMovieEntry.OVERVIEW, this.movie.getMovieOverview());
-//                    values.put(FavoriteMovieEntry.RATING, this.movie.getRating());
-//                    values.put(FavoriteMovieEntry.LOCALPATH, this.movie.getImageLocalPath());
-//
-//                    Log.i(LOG_TAG, "ConventValues == " + values);
-//
-//                    // TODO: contentResolver
-//                    Uri uri = getContentResolver().insert(
-//                            FavoriteMovieEntry.CONTENT_URI, values);
-//
-//                    long ret = ERROR_FROM_DATABASE_OPERATION;
-//
-//                    if (uri != null) {
-//                        ret = Long.parseLong(uri.getPathSegments().get(1));
-//                        Log.i(LOG_TAG, "ContentResolver.insert() = uri = " +uri+
-//                                            "\n long ret = "+ret);
-//
-//                        idInDb = ret;
-//                    }
-//
-//                    return ret;
-//
-//                } else {
-//                    // This movie is not favorites (so it is not in database neither).
-//                    return NOT_IN_FAVORITES;
-//                }
-//            }
         }
 
         private void loadLocalImage(String localImagePath) {

@@ -13,14 +13,14 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import static com.example.mit.popularmovies.data.FavoriteMovieContract.FavoriteMovieEntry.*;
+import static com.example.mit.popularmovies.data.FavoriteMovieContract.FavoriteMovieEntry.CONTENT_URI;
+import static com.example.mit.popularmovies.data.FavoriteMovieContract.FavoriteMovieEntry.TABLE_NAME;
 
 public class FavoriteMovieContentProvider extends ContentProvider {
-    private static final String LOG_TAG = FavoriteMovieContentProvider.class.getSimpleName();
-
     public static final int MOVIES = 100;
     public static final int MOVIE_WITH_ID = 101;
     public static final int MOVIE_WEB_ID = 102;
+    private static final String LOG_TAG = FavoriteMovieContentProvider.class.getSimpleName();
     private static final UriMatcher sUriMatcher = createUriMatcher();
     private FavoriteMovieSQLDbHelper favoriteMovieSQLDbHelper;
 
@@ -58,12 +58,12 @@ public class FavoriteMovieContentProvider extends ContentProvider {
         Cursor cursor;
 
         switch (matchUri) {
-            case MOVIES :
+            case MOVIES:
                 cursor = database.query(TABLE_NAME, projection, selection, selectionArgs,
                         null, null, sortOrder);
 
                 break;
-            case MOVIE_WITH_ID :
+            case MOVIE_WITH_ID:
                 // uri : content://<authority/directory/#
                 //---------------------------/----0----/1
                 String id = uri.getPathSegments().get(1);
@@ -75,8 +75,8 @@ public class FavoriteMovieContentProvider extends ContentProvider {
                         null, null, sortOrder);
 
                 break;
-            default :
-                throw new UnsupportedOperationException("Unknown Uri: "+uri);
+            default:
+                throw new UnsupportedOperationException("Unknown Uri: " + uri);
         }
 
         cursor.setNotificationUri(getContext().getContentResolver(), uri);
@@ -128,7 +128,7 @@ public class FavoriteMovieContentProvider extends ContentProvider {
         int match = sUriMatcher.match(uri);
 
         switch (match) {
-            case MOVIE_WITH_ID :
+            case MOVIE_WITH_ID:
                 // uri content://<authority>/directory/#
                 //--------------------------/----0----/1
                 String id = uri.getPathSegments().get(1);
@@ -138,15 +138,15 @@ public class FavoriteMovieContentProvider extends ContentProvider {
 
                 delete = database.delete(TABLE_NAME, mSelection, mSelectionArgs);
 
-                Log.i(LOG_TAG, "Deleted row: "+delete);
+                Log.i(LOG_TAG, "Deleted row: " + delete);
 
                 break;
-            default :
+            default:
                 // This application will not be able to remove more than one row.
-                throw new UnsupportedOperationException("Unknown uri: "+uri);
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
 
-        getContext().getContentResolver().notifyChange(uri,null);
+        getContext().getContentResolver().notifyChange(uri, null);
 
         return delete;
     }

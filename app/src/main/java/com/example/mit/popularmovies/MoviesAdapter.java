@@ -3,10 +3,8 @@ package com.example.mit.popularmovies;
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -53,21 +51,6 @@ class MoviesAdapter extends ArrayAdapter<Movie> {
         }
 
         ImageView favIcon = listItemView.findViewById(R.id.image_view_item_grid_favorite);
-
-//        FavMoviesDbAdapter favMoviesDbAdapter = new FavMoviesDbAdapter(context);
-//        try {
-//            favMoviesDbAdapter.open();
-//        } catch (SQLException e) {
-//            Log.e(MoviesAdapter.class.getSimpleName(), "MoviesAdapter; onPreExecute() : exception : e == " + e);
-//        }
-//        Cursor cursor = favMoviesDbAdapter.getMovie(currentMovie.getMovieID());
-//        if (cursor.getCount() > 0) {
-//            favIcon.setVisibility(View.VISIBLE);
-//        } else {
-//            favIcon.setVisibility(View.GONE);
-//        }
-
-//        String[] selectionArgs = new String[]{String.valueOf(currentMovie.getMovieID())};
 
         Cursor cursor = context.getContentResolver().query(FavoriteMovieContract.FavoriteMovieEntry.CONTENT_URI, null,
                 FavoriteMovieContract.FavoriteMovieEntry.MOVIE_ID

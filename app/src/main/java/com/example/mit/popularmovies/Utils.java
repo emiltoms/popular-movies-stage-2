@@ -28,6 +28,9 @@ public class Utils {
 
     private static final String NO_DATA = "n/a";
     private static final int NO_DATA_INT = -1;
+    private static final int USE_IN_MOVIES_ADAPTER = 100;
+    private static final int USE_IN_TRAILERS_ADAPTER = 102;
+    private static final int USE_IN_REVIEWS = 104;
 
     private static final String RESULTS_JSON_ARRAY = "results";
     private static final String ID_JSON = "id";
@@ -88,7 +91,7 @@ public class Utils {
     }
 
     public static List<Movie> takeMovies(String sortedBy) {
-        String newUrl = createURL(sortedBy, NO_DATA_INT).toString();
+        String newUrl = createURL(sortedBy, NO_DATA_INT, USE_IN_MOVIES_ADAPTER).toString();
         String jsonResponse = null;
 
         try {
@@ -102,7 +105,7 @@ public class Utils {
     }
 
     public static ArrayList<String> takeTrailers(int movieID) {
-        String newUrl = createURL(NO_DATA, movieID).toString();
+        String newUrl = createURL(NO_DATA, movieID, USE_IN_TRAILERS_ADAPTER).toString();
         String jsonResponse = null;
 
         try {
@@ -113,6 +116,53 @@ public class Utils {
         }
 
         return extractTrailers(jsonResponse);
+    }
+
+    public static ArrayList<String> takeReviews(int movieID) {
+        String newUrl = createURL(NO_DATA, movieID, USE_IN_REVIEWS).toString();
+        String jsonResponse = null;
+
+        try {
+            URL url = new URL(newUrl);
+            jsonResponse = httpRequest(url);
+        } catch (IOException e) {
+            Log.e(LOG_TAG, "takeReviews; IOException : e = " + e);
+        }
+
+        return extractReviews(jsonResponse);
+    }
+
+    private static ArrayList<String> extractReviews(String reviewsJSON) {
+        if (TextUtils.isEmpty(reviewsJSON)) {
+            Log.w(LOG_TAG, "extractReviews, TextUtils.isEmpty(reviewsJSON)= TRUE");
+            return null;
+        }
+
+        ArrayList<String> reviews = new ArrayList<>();
+        String review;
+
+        try {
+            JSONObject jsonObject = new JSONObject(reviewsJSON);
+            JSONArray results = jsonObject.getJSONArray(RESULTS_JSON_ARRAY);
+            if (results.length() > 0) {
+                for (int k = 0; k < results.length(); k++) {
+                    JSONObject rev = results.getJSONObject(k);
+                    if (rev.has("content")) {
+                        review = rev.getString("content");
+                    } else {
+                        review = NO_DATA;
+                    }
+                    reviews.add(review);
+                }
+            } else {
+                review = NO_DATA;
+                reviews.add(review);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Log.i(LOG_TAG, LOG_MSG_JSON_EXTRACTED + reviews);
+        return reviews;
     }
 
     private static ArrayList<String> extractTrailers(String trailersJSON) {
@@ -202,7 +252,7 @@ public class Utils {
 
                 // Add movie with new data to list
                 Movie item = new Movie(movieID, thumbnail, titleMovie,
-                        releaseDate, movieOverview, rating, NO_DATA, NO_DATA);
+                        releaseDate, movieOverview, rating, NO_DATA);
                 movies.add(item);
             }
 
@@ -231,26 +281,41 @@ public class Utils {
         return output.toString();
     }
 
-    private static Uri createURL(String sortedBy, int movieId) {
+    private static Uri createURL(String sortedBy, int movieId, int purpose) {
 
         Uri.Builder builder = new Uri.Builder();
-        if (movieId != -1) {
-            builder.scheme("https")
-                    .authority("api.themoviedb.org")
-                    .appendPath("3")
-                    .appendPath("movie")
-                    .appendPath(String.valueOf(movieId))
-                    .appendPath("videos")
-                    .appendQueryParameter("api_key", API_KEY)
-                    .appendQueryParameter("language", "en-US");
-        } else {
-            builder.scheme("https")
-                    .authority("api.themoviedb.org")
-                    .appendPath("3")
-                    .appendPath("movie")
-                    .appendPath(sortedBy)
-                    .appendQueryParameter("api_key", API_KEY)
-                    .appendQueryParameter("language", "en-US");
+        switch (purpose) {
+            case USE_IN_TRAILERS_ADAPTER:
+                builder.scheme("https")
+                        .authority("api.themoviedb.org")
+                        .appendPath("3")
+                        .appendPath("movie")
+                        .appendPath(String.valueOf(movieId))
+                        .appendPath("videos")
+                        .appendQueryParameter("api_key", API_KEY)
+                        .appendQueryParameter("language", "en-US");
+                break;
+            case USE_IN_MOVIES_ADAPTER:
+                builder.scheme("https")
+                        .authority("api.themoviedb.org")
+                        .appendPath("3")
+                        .appendPath("movie")
+                        .appendPath(sortedBy)
+                        .appendQueryParameter("api_key", API_KEY)
+                        .appendQueryParameter("language", "en-US");
+                break;
+            case USE_IN_REVIEWS:
+                builder.scheme("https")
+                        .authority("api.themoviedb.org")
+                        .appendPath("3")
+                        .appendPath("movie")
+                        .appendPath(String.valueOf(movieId))
+                        .appendPath("reviews")
+                        .appendQueryParameter("api_key", API_KEY)
+                        .appendQueryParameter("language", "en-US");
+                break;
+            default:
+                throw new UnsupportedOperationException("unknown purpose in createURL method");
 
         }
         return builder.build();

@@ -45,11 +45,11 @@ class MoviesLoader extends AsyncTaskLoader<List<Movie>> {
 
             Cursor cursor = context.getContentResolver().query(
                     FavoriteMovieContract.FavoriteMovieEntry.CONTENT_URI,
-                    null,null,null,null);
+                    null, null, null, null);
 
             if (cursor != null && cursor.moveToFirst()) {
                 do {
-                    Movie movie = new Movie(0, NO_DATA, NO_DATA, NO_DATA, NO_DATA, NO_DATA, NO_DATA, NO_DATA);
+                    Movie movie = new Movie(0, NO_DATA, NO_DATA, NO_DATA, NO_DATA, NO_DATA, NO_DATA);
                     movie.setMovieID(cursor.getInt(cursor.getColumnIndex(MOVIE_ID)));
                     movie.setThumbnail(cursor.getString(cursor.getColumnIndex(THUMBNAIL)));
                     movie.setTitleMovie(cursor.getString(cursor.getColumnIndex(NAME)));
